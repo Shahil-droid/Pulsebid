@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: pulsebid
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "cd pulsebid && gunicorn pulsebid.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: "*"
