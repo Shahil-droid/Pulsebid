@@ -1,0 +1,200 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}{{ profile_user.username }} | Pulse Bid{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .profile-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 36px;
+        text-align: center;
+        position: relative;
+        box-shadow: var(--shadow);
+    }
+
+    .profile-img {
+        width: 120px; height: 120px;
+        border-radius: 50%;
+        border: 4px solid var(--primary);
+        object-fit: cover;
+        box-shadow: 0 0 24px var(--primary-glow);
+        margin-bottom: 16px;
+    }
+    .profile-initial {
+        width: 120px; height: 120px;
+        border-radius: 50%;
+        border: 4px solid var(--primary);
+        background: var(--bg-secondary);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary);
+        font-size: 2.5em; font-weight: 800;
+        margin: 0 auto 16px;
+        box-shadow: 0 0 24px var(--primary-glow);
+    }
+
+    .profile-card h1 { font-size: 1.8em; font-weight: 800; letter-spacing: -0.5px; margin: 0; }
+    .user-tag {
+        color: var(--text-dim);
+        font-size: 0.82em;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 6px;
+    }
+    .vip-tag { color: var(--gold); }
+
+    .edit-fab {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: var(--bg-secondary);
+        color: var(--primary);
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 1.1em;
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+    }
+    .edit-fab:hover {
+        background: var(--primary);
+        color: #000;
+        transform: rotate(90deg);
+        border-color: var(--primary);
+    }
+
+    .actions { margin-top: 20px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 28px 0 0;
+    }
+    .stat-box {
+        background: var(--bg-secondary);
+        padding: 16px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+    }
+    .stat-box h2 { margin: 0; color: var(--primary); font-size: 1.8em; font-weight: 800; }
+    .stat-box span { color: var(--text-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+    .section-heading {
+        color: var(--primary);
+        font-size: 1em;
+        font-weight: 700;
+        margin: 36px 0 16px;
+        padding-left: 14px;
+        border-left: 3px solid var(--primary);
+    }
+
+    .list-item {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        padding: 14px 18px;
+        margin-bottom: 8px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    .list-item:hover { transform: translateX(5px); border-color: var(--border-hover); }
+    .list-item a { color: var(--primary); font-weight: 700; font-size: 0.88em; }
+
+    .won-badge {
+        display: inline-block;
+        background: var(--success-glow);
+        color: var(--success);
+        font-size: 0.72em;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: var(--radius-pill);
+        margin-left: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="profile-card">
+        {% if user == profile_user %}
+            <a href="{% url 'app1:edit_profile' %}" class="edit-fab" title="Edit Profile">⚙️</a>
+        {% endif %}
+
+        {% if profile.profile_pic %}
+            <img src="{{ profile.profile_pic.url }}" class="profile-img" alt="{{ profile_user.username }}">
+        {% else %}
+            <div class="profile-initial">{{ profile_user.username|first|upper }}</div>
+        {% endif %}
+
+        <h1>{{ profile_user.username }}</h1>
+        <p class="user-tag {% if profile.is_vip %}vip-tag{% endif %}">{% if profile.is_vip %}★ VIP Influencer{% else %}Community Member{% endif %}</p>
+
+        <div class="actions">
+            <a href="{% url 'app1:index' %}" class="btn btn-ghost">← Home</a>
+            {% if user != profile_user %}
+                <form action="{% url 'app1:follow_toggle' profile_user.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    {% if is_following %}
+                        <button type="submit" class="btn btn-accent">Unfollow</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">Follow</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h2>{{ profile.reliability_score }}</h2>
+                <span>Trust Score</span>
+            </div>
+            <div class="stat-box">
+                <h2>{{ profile.total_followers }}</h2>
+                <span>Followers</span>
+            </div>
+            <div class="stat-box">
+                <h2>{{ my_products.count }}</h2>
+                <span>Items</span>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section-heading">Active Listings</h3>
+    {% for product in my_products %}
+        <div class="list-item">
+            <span><strong>{{ product.title }}</strong> <span style="color: var(--text-dim); font-size: 0.85em;">({{ product.get_status_display }})</span></span>
+            <a href="{% url 'app1:product_detail' product.id %}">View →</a>
+        </div>
+    {% empty %}
+        <p style="color: var(--text-dim); font-style: italic; padding: 12px;">No active listings.</p>
+    {% endfor %}
+
+    {% if won_products %}
+    <h3 class="section-heading" style="color: var(--success); border-color: var(--success);">🏆 Won Auctions</h3>
+    {% for product in won_products %}
+        <div class="list-item">
+            <span>
+                <strong>{{ product.title }}</strong>
+                <span class="won-badge">WON ₹{{ product.current_bid }}</span>
+            </span>
+            <a href="{% url 'app1:product_detail' product.id %}">View →</a>
+        </div>
+    {% endfor %}
+    {% endif %}
+
+    <h3 class="section-heading">Recent Activity</h3>
+    {% for bid in my_bids %}
+        <div class="list-item">
+            <span>Bid <strong style="color: var(--success);">₹{{ bid.amount }}</strong> on {{ bid.product.title }}</span>
+            <span style="color: var(--text-dim); font-size: 0.82em;">{{ bid.timestamp|date:"M d" }}</span>
+        </div>
+    {% empty %}
+        <p style="color: var(--text-dim); font-style: italic; padding: 12px;">No recent bids.</p>
+    {% endfor %}
+{% endblock %}

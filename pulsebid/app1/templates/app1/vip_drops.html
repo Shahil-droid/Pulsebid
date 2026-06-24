@@ -1,0 +1,137 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}VIP Drops | Pulse Bid{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .drops-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    .drops-header h1 {
+        font-size: 2.2em;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        background: linear-gradient(135deg, var(--gold), #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .drops-header p {
+        color: var(--gold);
+        letter-spacing: 2px;
+        font-size: 0.82em;
+        text-transform: uppercase;
+        margin-top: 8px;
+        font-weight: 600;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 32px; }
+
+    .drop-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 0;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        position: relative;
+    }
+    .drop-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--gold), transparent);
+    }
+    .drop-card:hover {
+        border-color: var(--gold);
+        transform: scale(1.02);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    }
+
+    .img-container {
+        height: 250px;
+        overflow: hidden;
+        background: var(--bg-secondary);
+        position: relative;
+    }
+    .drop-img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        opacity: 0.85;
+        transition: all 0.4s;
+    }
+    .drop-card:hover .drop-img { opacity: 1; transform: scale(1.05); }
+
+    .no-img {
+        display: flex; align-items: center; justify-content: center;
+        height: 100%; color: var(--text-dim); font-weight: 700;
+    }
+
+    .content { padding: 22px; }
+    .seller-badge {
+        background: var(--purple);
+        color: white;
+        font-size: 0.68em;
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+    }
+    h3 { font-size: 1.3em; margin: 14px 0 6px; font-weight: 700; }
+    .desc { color: var(--text-dim); font-size: 0.88em; height: 42px; overflow: hidden; margin-bottom: 16px; line-height: 1.5; }
+
+    .btn-notify {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 700;
+        font-size: 0.88em;
+        letter-spacing: 1px;
+        box-sizing: border-box;
+    }
+    .btn-notify:hover { background: var(--gold); color: #000; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="drops-header">
+        <h1>FUTURE DROPS</h1>
+        <p>Exclusive Items from Verified Influencers</p>
+    </div>
+
+    <div class="grid">
+        {% for product in products %}
+            <div class="drop-card">
+                <div class="img-container">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="drop-img" alt="{{ product.title }}">
+                    {% else %}
+                        <div class="no-img">Image Coming Soon</div>
+                    {% endif %}
+                </div>
+
+                <div class="content">
+                    <span class="seller-badge">VIP: {{ product.seller.username }}</span>
+                    <h3>{{ product.title }}</h3>
+                    <p class="desc">{{ product.description|truncatechars:80 }}</p>
+                    <a href="{% url 'app1:product_detail' product.id %}" class="btn-notify">VIEW DROP</a>
+                </div>
+            </div>
+        {% empty %}
+            <div style="text-align: center; color: var(--text-dim); grid-column: 1/-1; padding: 60px;">
+                <h3 style="color: var(--text-muted);">No VIP drops scheduled yet</h3>
+                <p>Check back later for exclusive items.</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

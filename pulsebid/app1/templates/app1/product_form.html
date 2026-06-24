@@ -1,0 +1,111 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Sell Item | Pulse Bid{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .main-content { display: flex; justify-content: center; align-items: center; padding: 20px; width: 100%; }
+
+    .container {
+        background: var(--card-bg);
+        padding: 40px;
+        border-radius: var(--radius);
+        box-shadow: 0 0 30px rgba(0, 229, 221, 0.06);
+        width: 100%;
+        max-width: 520px;
+        border: 1px solid var(--border);
+    }
+
+    h2 {
+        text-align: center;
+        color: var(--primary);
+        margin-bottom: 28px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-size: 1.2em;
+    }
+
+    label {
+        font-weight: 600;
+        color: var(--text-dim);
+        font-size: 0.85em;
+        display: block;
+        margin-top: 16px;
+        margin-bottom: 4px;
+    }
+
+    input, textarea, select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-secondary);
+        color: var(--text-main);
+        box-sizing: border-box;
+        font-size: 0.95em;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.3s;
+    }
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    input[type="file"] { padding: 10px; background: #222; cursor: pointer; }
+
+    .btn-submit {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, var(--primary), #00b4d8);
+        color: #000;
+        border: none;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 700;
+        font-family: inherit;
+        margin-top: 24px;
+        transition: all 0.3s;
+    }
+    .btn-submit:hover { box-shadow: 0 4px 20px var(--primary-glow); transform: translateY(-2px); }
+
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        margin-top: 16px;
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 0.88em;
+    }
+    .btn-cancel:hover { text-decoration: underline; }
+
+    ul { list-style: none; padding: 0; color: #ff6b6b; font-size: 0.82em; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>{% if object %}Edit Item{% else %}List an Item{% endif %}</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <ul>
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+
+            <button type="submit" class="btn-submit">{% if object %}Save Changes{% else %}Post Listing{% endif %}</button>
+            <a href="{% url 'app1:index' %}" class="btn-cancel">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Login | Pulse Bid{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .main-content { display: flex; justify-content: center; align-items: center; padding: 0; width: 100%; }
+
+    .auth-container {
+        background: var(--card-bg);
+        padding: 44px 36px;
+        border-radius: var(--radius);
+        box-shadow: 0 0 40px rgba(0, 229, 221, 0.06);
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid var(--border);
+        text-align: center;
+    }
+    .auth-logo {
+        font-size: 1.3em;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .auth-subtitle { color: var(--text-dim); font-size: 0.88em; margin-bottom: 28px; }
+
+    input {
+        width: 100%;
+        padding: 12px 16px;
+        margin-bottom: 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-secondary);
+        color: var(--text-main);
+        box-sizing: border-box;
+        text-align: center;
+        outline: none;
+        font-family: inherit;
+        font-size: 0.95em;
+        transition: all 0.3s;
+    }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+    button {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(135deg, var(--primary), #00b4d8);
+        color: #000;
+        border: none;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 700;
+        font-family: inherit;
+        margin-top: 8px;
+        transition: all 0.3s;
+    }
+    button:hover { box-shadow: 0 4px 20px var(--primary-glow); transform: translateY(-2px); }
+
+    .links { margin-top: 24px; font-size: 0.88em; color: var(--text-dim); }
+    .links a { color: var(--primary); font-weight: 700; }
+    .links a:hover { text-decoration: underline; }
+
+    p, label { color: var(--text-muted); font-size: 0.88em; }
+    ul { list-style: none; padding: 0; color: #ff6b6b; font-size: 0.82em; text-align: left; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="auth-container">
+        <div class="auth-logo"><span class="logo-dot" style="width:8px;height:8px;background:var(--primary);border-radius:50%;display:inline-block;"></span> PULSEBID</div>
+        <p class="auth-subtitle">Welcome back</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign In</button>
+        </form>
+        <div class="links">
+            Don't have an account? <a href="{% url 'app1:signup' %}">Sign Up</a>
+        </div>
+    </div>
+{% endblock %}

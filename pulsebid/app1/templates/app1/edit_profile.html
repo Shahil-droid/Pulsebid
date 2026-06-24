@@ -1,0 +1,143 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Edit Profile | Pulse Bid{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .main-content { display: flex; justify-content: center; align-items: center; padding: 20px; width: 100%; }
+
+    .container {
+        background: var(--card-bg);
+        padding: 32px;
+        border-radius: var(--radius);
+        box-shadow: 0 0 30px rgba(0, 229, 221, 0.06);
+        width: 100%;
+        max-width: 520px;
+        border: 1px solid var(--border);
+    }
+
+    h2 { text-align: center; color: var(--primary); margin-bottom: 24px; text-transform: uppercase; font-size: 1.2em; letter-spacing: 1px; }
+
+    .section {
+        background: var(--bg-secondary);
+        padding: 18px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+    .section-title {
+        color: var(--text-main);
+        font-size: 1em;
+        font-weight: 700;
+        margin-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 6px;
+    }
+
+    label { font-weight: 600; color: var(--text-dim); font-size: 0.85em; display: block; margin-top: 12px; margin-bottom: 4px; }
+
+    input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        box-sizing: border-box;
+        font-size: 0.95em;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.3s;
+    }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    input[type="file"] { background: #222; cursor: pointer; padding: 8px; }
+    input:disabled { background: #222; color: var(--text-dim); cursor: not-allowed; }
+
+    .btn-save {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(135deg, var(--primary), #00b4d8);
+        color: #000;
+        border: none;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 700;
+        font-family: inherit;
+        transition: all 0.3s;
+        margin-top: 4px;
+    }
+    .btn-save:hover { box-shadow: 0 4px 20px var(--primary-glow); transform: translateY(-2px); }
+
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        margin-top: 14px;
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 0.88em;
+    }
+    .btn-cancel:hover { text-decoration: underline; }
+
+    .warning-box {
+        background: rgba(255, 200, 87, 0.08);
+        color: var(--gold);
+        padding: 14px 18px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 200, 87, 0.3);
+        font-size: 0.88em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Update Profile</h2>
+
+        {% if request.GET.seller_mode %}
+            <div class="warning-box">
+                <span style="font-size: 1.5em;">⚠️</span>
+                <div>
+                    <strong>Seller Action Required:</strong><br>
+                    You must add a Payment Link below to list items.
+                </div>
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="section">
+                <div class="section-title">👤 Personal Details</div>
+                <label>Username</label>
+                <input type="text" value="{{ user.username }}" disabled>
+                <label>Profile Picture</label>
+                <input type="file" name="profile_pic" accept="image/*">
+                <label>First Name</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}">
+                <label>Last Name</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}">
+                <label>Email Address</label>
+                <input type="email" name="email" value="{{ user.email }}">
+            </div>
+
+            <div class="section">
+                <div class="section-title">💰 Seller Settings <span style="font-size:0.72em; color:var(--text-dim); float:right; margin-top:2px;">(Optional)</span></div>
+                <label>Payment Link (Razorpay/UPI)
+                    {% if request.GET.seller_mode %}<span style="color: var(--accent);">*</span>{% endif %}
+                </label>
+                <input type="url" name="payment_link" value="{{ profile.payment_link|default:'' }}" placeholder="https://razorpay.me/@yourname" {% if request.GET.seller_mode %}required{% endif %}>
+                <p style="font-size: 0.78em; color: var(--text-dim); margin-top: 4px;">Only needed if you plan to sell items.</p>
+            </div>
+
+            <button type="submit" class="btn-save">Save Changes</button>
+            <a href="{% url 'app1:view_profile' user.username %}" class="btn-cancel">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

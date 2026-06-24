@@ -1,0 +1,50 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Payment Successful | Pulse Bid{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .main-content { display: flex; justify-content: center; align-items: center; padding: 20px; width: 100%; }
+
+    .card {
+        background: var(--card-bg);
+        padding: 56px 40px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        text-align: center;
+        max-width: 420px;
+        box-shadow: 0 0 40px var(--success-glow);
+    }
+
+    .icon { font-size: 4em; margin-bottom: 16px; display: block; }
+
+    .checkmark {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: var(--success-glow);
+        border: 3px solid var(--success);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2em;
+        color: var(--success);
+        animation: scale-in 0.5s ease;
+    }
+    @keyframes scale-in { from { transform: scale(0); } to { transform: scale(1); } }
+
+    h1 { color: var(--success); margin: 0 0 12px 0; font-size: 1.6em; }
+    p { color: var(--text-muted); margin-bottom: 28px; font-size: 1.05em; line-height: 1.5; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="checkmark">✓</div>
+        <h1>Purchase Successful!</h1>
+        <p>You have successfully purchased <strong style="color: var(--text-main);">{{ product.title }}</strong>.</p>
+        <a href="{% url 'app1:product_detail' product.id %}" class="btn btn-primary" style="padding: 12px 28px;">View Receipt / Details</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Chat | Pulse Bid{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body { height: 100vh; }
+    .main-content { padding: 0; max-width: 100%; height: 100vh; display: flex; justify-content: center; }
+
+    .chat-container {
+        width: 100%;
+        max-width: 640px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+
+    .chat-header {
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    .back-link { color: var(--primary); font-weight: 700; font-size: 0.88em; }
+    .chat-header h3 { margin: 6px 0 0; font-size: 1em; font-weight: 700; }
+    .chat-header span { color: var(--text-dim); font-size: 0.82em; }
+
+    .chat-box {
+        flex-grow: 1;
+        overflow-y: auto;
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        margin-bottom: 14px;
+    }
+
+    .message {
+        margin-bottom: 12px;
+        padding: 12px 16px;
+        border-radius: 16px;
+        max-width: 75%;
+        position: relative;
+        font-size: 0.92em;
+        line-height: 1.5;
+    }
+    .sent {
+        background: linear-gradient(135deg, var(--primary), #00b4d8);
+        color: #000;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+    .received {
+        background: var(--bg-secondary);
+        color: var(--text-main);
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+        border: 1px solid var(--border);
+    }
+    .meta { font-size: 0.68em; opacity: 0.6; margin-top: 4px; display: block; text-align: right; }
+
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row textarea {
+        flex: 1;
+        padding: 12px 18px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        border-radius: var(--radius-pill);
+        resize: none;
+        outline: none;
+        font-family: inherit;
+        font-size: 0.92em;
+    }
+    .chat-input-row textarea:focus { border-color: var(--primary); }
+    .send-btn {
+        background: linear-gradient(135deg, var(--primary), #00b4d8);
+        color: #000;
+        border: none;
+        padding: 0 22px;
+        border-radius: var(--radius-pill);
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1em;
+        transition: all 0.25s;
+    }
+    .send-btn:hover { box-shadow: 0 2px 12px var(--primary-glow); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="chat-container">
+        <div class="chat-header">
+            <a href="{% url 'app1:inbox' %}" class="back-link">← Inbox</a>
+            <h3>{{ other_user.username }}</h3>
+            <span>re: {{ product.title }}</span>
+        </div>
+
+        <div class="chat-box" id="chatContainer">
+            {% for msg in messages %}
+                <div class="message {% if msg.sender == user %}sent{% else %}received{% endif %}">
+                    {{ msg.body }}
+                    <span class="meta">{{ msg.timestamp|date:"H:i" }}</span>
+                </div>
+            {% empty %}
+                <p style="text-align:center; color: var(--text-dim); padding: 40px 0;">Start the conversation...</p>
+            {% endfor %}
+        </div>
+
+        <form method="post" class="chat-input-row">
+            {% csrf_token %}
+            <textarea name="body" rows="1" placeholder="Type a message..." required></textarea>
+            <button type="submit" class="send-btn">→</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+</script>
+{% endblock %}

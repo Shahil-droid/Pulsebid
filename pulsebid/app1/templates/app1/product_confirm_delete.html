@@ -1,0 +1,48 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Delete Product | Pulse Bid{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .main-content { display: flex; justify-content: center; align-items: center; padding: 20px; width: 100%; }
+
+    .container {
+        background: var(--card-bg);
+        padding: 44px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        text-align: center;
+        max-width: 420px;
+        box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .warning-icon {
+        font-size: 3em;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    h2 { color: var(--accent); margin-bottom: 12px; font-size: 1.4em; }
+    p { color: var(--text-muted); margin-bottom: 28px; line-height: 1.5; }
+
+    .btn-group { display: flex; gap: 12px; justify-content: center; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <span class="warning-icon">⚠️</span>
+        <h2>Delete Product?</h2>
+        <p>Are you sure you want to delete <strong style="color: var(--text-main);">"{{ object.title }}"</strong>? This action cannot be undone.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                <a href="{% url 'app1:product_detail' object.id %}" class="btn btn-ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

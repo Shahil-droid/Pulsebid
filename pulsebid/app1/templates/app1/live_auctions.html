@@ -1,0 +1,185 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Live Arena | Pulse Bid{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .arena-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .arena-header h1 {
+        font-size: 2em;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, var(--accent), #ff6b9d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .arena-header p { color: var(--text-dim); font-size: 0.9em; margin-top: 6px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        padding: 0;
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.35s ease;
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+    .card.live { border-color: rgba(255, 45, 106, 0.4); box-shadow: 0 0 15px var(--accent-glow); }
+    .card.warmup { border-color: rgba(255, 159, 67, 0.4); box-shadow: 0 0 15px rgba(255, 159, 67, 0.1); }
+
+    .badge {
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.72em;
+        position: absolute;
+        top: 14px; right: 14px;
+        z-index: 10;
+        letter-spacing: 0.5px;
+    }
+    .badge-live { background: var(--accent); color: #fff; animation: pulse-live 1.5s infinite; }
+    .badge-warmup { background: var(--warning); color: #000; }
+    @keyframes pulse-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    .live-img-wrap {
+        height: 180px;
+        overflow: hidden;
+        background: var(--bg-secondary);
+    }
+    .live-img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s;
+    }
+    .card:hover .live-img { transform: scale(1.05); }
+
+    .card-body { padding: 20px; }
+    .card-body h3 { font-size: 1.1em; font-weight: 700; margin-bottom: 6px; }
+
+    .timer {
+        font-size: 1.6em;
+        font-weight: 800;
+        margin: 10px 0 4px;
+        font-family: 'Inter', monospace;
+    }
+    .live .timer { color: var(--accent); }
+    .warmup .timer { color: var(--warning); }
+
+    .timer-label {
+        font-size: 0.72em;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+    }
+
+    .enter-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        text-align: center;
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border);
+        color: var(--text-muted);
+        font-weight: 700;
+        font-size: 0.88em;
+        transition: all 0.25s;
+    }
+    .enter-btn:hover { background: var(--card-bg-hover); color: var(--primary); }
+
+    .no-img { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-dim); font-weight: 600; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="arena-header">
+        <h1>Live Auction Arena</h1>
+        <p>Real-time bidding wars in progress</p>
+    </div>
+
+    <div class="grid">
+        {% for product in products %}
+            <div class="card {% if product.status == 'AUCTION' %}live{% else %}warmup{% endif %}">
+                {% if product.status == 'AUCTION' %}
+                    <span class="badge badge-live">● LIVE NOW</span>
+                {% else %}
+                    <span class="badge badge-warmup">WARMING UP</span>
+                {% endif %}
+
+                <div class="live-img-wrap">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="live-img">
+                    {% else %}
+                        <div class="no-img">No Image</div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <h3>{{ product.title }}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9em;">Current Bid: <strong style="color: var(--success);">₹{{ product.current_bid }}</strong></p>
+
+                    <div class="timer"
+                         data-endtime="{% if product.status == 'AUCTION' %}{{ product.auction_end_time|date:'c' }}{% else %}{{ product.auction_start_time|date:'c' }}{% endif %}"
+                         data-update-url="{% url 'app1:product_detail' product.id %}">
+                        Loading...
+                    </div>
+                    <div class="timer-label">
+                        {% if product.status == 'AUCTION' %}Auction Ends In{% else %}Bidding Starts In{% endif %}
+                    </div>
+                </div>
+
+                <a href="{% url 'app1:product_detail' product.id %}" class="enter-btn">Enter Room →</a>
+            </div>
+        {% empty %}
+            <div style="text-align:center; grid-column: 1/-1; padding: 60px; color: var(--text-dim);">
+                <h3 style="color: var(--text-muted);">No live auctions at the moment</h3>
+                <p>Check back soon for exciting bidding wars!</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const timers = document.querySelectorAll('.timer');
+        timers.forEach(timerDisplay => {
+            const timeValue = timerDisplay.getAttribute('data-endtime');
+            const updateUrl = timerDisplay.getAttribute('data-update-url');
+            if (!timeValue) return;
+
+            const targetTime = new Date(timeValue).getTime();
+            const updateTimer = () => {
+                const now = new Date().getTime();
+                const distance = targetTime - now;
+                if (distance < 0) {
+                    clearInterval(interval);
+                    timerDisplay.innerHTML = "Finalizing...";
+                    timerDisplay.style.color = "#888";
+                    if (updateUrl) {
+                        fetch(updateUrl).then(() => window.location.reload()).catch(() => window.location.reload());
+                    } else {
+                        setTimeout(() => window.location.reload(), 2000);
+                    }
+                } else {
+                    const h = Math.floor(distance / (1000 * 60 * 60));
+                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((distance % (1000 * 60)) / 1000);
+                    const pad = n => n < 10 ? '0' + n : n;
+                    timerDisplay.innerHTML = `${h}h ${pad(m)}m ${pad(s)}s`;
+                }
+            };
+            const interval = setInterval(updateTimer, 1000);
+            updateTimer();
+        });
+    });
+</script>
+{% endblock %}

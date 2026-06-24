@@ -1,0 +1,556 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}{{ product.title }} | Pulse Bid{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-dim);
+        font-weight: 600;
+        font-size: 0.88em;
+        margin-bottom: 20px;
+        transition: color 0.25s;
+    }
+    .back-link:hover { color: var(--primary); }
+
+    .detail-container {
+        background: var(--card-bg);
+        padding: 32px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+    }
+
+    .header-section {
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+    }
+    .header-section h1 { font-size: 1.6em; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 10px; }
+
+    .product-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+    .seller-link { color: var(--primary); font-weight: 700; }
+    .seller-link:hover { text-decoration: underline; }
+
+    .detail-status {
+        background: #222;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-weight: 700;
+        color: var(--primary);
+        text-transform: uppercase;
+        font-size: 0.75em;
+        letter-spacing: 1px;
+    }
+
+    .product-img {
+        max-width: 100%;
+        border-radius: var(--radius-sm);
+        margin: 16px 0;
+        border: 1px solid var(--border);
+        max-height: 420px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .description { color: var(--text-muted); line-height: 1.7; }
+
+    /* Neon Sections */
+    .neon-section {
+        background: var(--bg-secondary);
+        padding: 24px;
+        border-radius: var(--radius);
+        margin: 20px 0;
+        border: 1px solid var(--border);
+    }
+    .neon-section h3 { margin-top: 0; font-size: 1.1em; font-weight: 700; }
+
+    /* Price Box */
+    .price-box {
+        font-size: 2em;
+        margin: 16px 0;
+        color: var(--success);
+        text-shadow: var(--shadow-glow) var(--success-glow);
+        transition: background-color 0.5s;
+        padding: 12px 16px;
+        border-radius: var(--radius-sm);
+        font-weight: 800;
+    }
+    .timer-box {
+        font-size: 1.4em;
+        color: var(--accent);
+        font-weight: 700;
+        margin-bottom: 16px;
+        font-family: 'Inter', monospace;
+    }
+
+    /* Action Buttons Row */
+    .action-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    /* Enquiry Form */
+    .enquiry-form {
+        display: none;
+        margin-top: 16px;
+    }
+    .enquiry-form textarea {
+        width: 100%;
+        background: var(--bg-color);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 0.95em;
+        resize: vertical;
+        outline: none;
+        box-sizing: border-box;
+    }
+    .enquiry-form textarea:focus { border-color: var(--primary); }
+
+    /* Locked Banner */
+    .locked-banner {
+        background: rgba(255, 200, 87, 0.08);
+        border: 1px solid rgba(255, 200, 87, 0.3);
+        padding: 16px 20px;
+        border-radius: var(--radius-sm);
+        color: var(--gold);
+        text-align: center;
+        font-size: 0.95em;
+    }
+
+    /* Seller Panel */
+    .seller-panel {
+        background: var(--bg-secondary);
+        padding: 20px;
+        border-radius: var(--radius-sm);
+        border: 1px solid #444;
+        text-align: center;
+    }
+
+    /* Bid Input Group */
+    .bid-group {
+        display: flex;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+    .bid-group input {
+        flex-grow: 1;
+        background: var(--bg-color);
+        border: none;
+        color: var(--text-main);
+        padding: 14px;
+        font-family: inherit;
+        font-size: 1em;
+        outline: none;
+    }
+    .bid-group input:focus { box-shadow: inset 0 0 0 2px var(--primary); }
+    .bid-group .btn { border-radius: 0; }
+
+    /* Winner Section */
+    .winner-section {
+        background: rgba(0, 255, 157, 0.06);
+        border: 2px solid var(--success);
+        padding: 28px;
+        border-radius: var(--radius);
+        text-align: center;
+        margin-top: 24px;
+    }
+    .winner-section h2 { color: var(--success); font-size: 1.5em; }
+
+    .sold-section {
+        text-align: center;
+        padding: 24px;
+        opacity: 0.6;
+    }
+
+    /* Choice Cards */
+    .choice-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    @media (max-width: 600px) { .choice-grid { grid-template-columns: 1fr; } }
+
+    .choice-card {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        text-align: center;
+    }
+    .choice-card h4 { margin: 0 0 8px 0; }
+    .choice-card p { font-size: 0.82em; color: var(--text-dim); margin-bottom: 14px; }
+
+    /* Bid History */
+    .bid-history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.88em;
+    }
+    .bid-history-item:last-child { border-bottom: none; }
+    .bid-user { color: var(--primary); font-weight: 600; }
+    .bid-amount { color: var(--success); font-weight: 700; }
+    .bid-time { color: var(--text-dim); font-size: 0.82em; }
+
+    /* Payment Overlay */
+    #payment-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.92);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .spinner {
+        border: 4px solid #333;
+        border-top: 4px solid var(--success);
+        border-radius: 50%;
+        width: 48px; height: 48px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    input[type="datetime-local"] {
+        background: var(--bg-color);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 10px;
+        border-radius: var(--radius-sm);
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        font-family: inherit;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'app1:index' %}" class="back-link">← Back to Marketplace</a>
+
+<div class="detail-container">
+    <div class="header-section">
+        <h1>{{ product.title }}</h1>
+        <div class="product-meta">
+            <span>Seller: <a href="{% url 'app1:view_profile' product.seller.username %}" class="seller-link">{{ product.seller.username }}</a></span>
+            <span id="status-text" class="detail-status">{{ product.get_status_display }}</span>
+            {% if product.category %}
+                <span style="font-size:0.82em; color:var(--text-dim);">{{ product.category.icon }} {{ product.category.name }}</span>
+            {% endif %}
+        </div>
+
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.title }}" class="product-img">
+        {% endif %}
+        <p class="description">{{ product.description }}</p>
+    </div>
+
+    <!-- 1. Buy Now / Enquiry (SELLER CHECK + LOCK LOGIC) -->
+    {% if product.status == 'FIXED' %}
+    <div id="buy-now-section">
+        <h3 style="color: var(--text-muted); font-weight: 600;">Fixed Price: <span style="color: var(--text-main); font-size: 1.2em;">₹{{ product.buy_now_price }}</span></h3>
+
+        {% if user == product.seller %}
+            <div class="seller-panel" style="margin-top: 16px;">
+                <p style="color: var(--text-dim); margin-bottom: 14px;">Manage your listing</p>
+                <div class="action-row" style="justify-content: center;">
+                    <a href="{% url 'app1:product_edit' product.id %}" class="btn btn-warning">Edit Item</a>
+                    <a href="{% url 'app1:product_delete' product.id %}" class="btn btn-danger">Delete Item</a>
+                </div>
+            </div>
+        {% else %}
+            {% if user.is_authenticated %}
+                {% if user in product.interested_users.all %}
+                    <div class="action-row" style="margin-top: 16px;">
+                        <form id="buy-form" action="{% url 'app1:payment_success' product.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="button" class="btn btn-success" onclick="processPayment()">Buy Now</button>
+                        </form>
+                        <button onclick="document.getElementById('enquiry-form').style.display='block'" class="btn" style="background: var(--purple); color: #fff;">Contact Seller</button>
+                    </div>
+
+                    <div id="enquiry-form" class="enquiry-form">
+                        <form action="{% url 'app1:send_enquiry' product.id %}" method="post">
+                            {% csrf_token %}
+                            <textarea name="message" rows="3" placeholder="Is the price negotiable?" required></textarea>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 10px; width: 100%;">Send Message</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="locked-banner" style="margin-top: 16px;">
+                        🔒 <strong>Locked</strong> — Click <strong>"I'm Interested"</strong> below to unlock buying.
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="locked-banner" style="margin-top: 16px;">
+                    🔒 <a href="{% url 'app1:login' %}" style="color: var(--primary);">Login</a> to show interest and unlock buying.
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- 2. Pulse Monitor -->
+    <div class="neon-section">
+        <h3>⚡ Pulse Monitor</h3>
+        <p style="margin-top: 8px;">Interest: <strong style="color: var(--primary); font-size: 1.2em;"><span id="pulse-count">{{ product.get_interest_count }}</span> / {{ product.interest_threshold }}</strong></p>
+
+        <!-- Progress bar -->
+        {% with pct=product.get_interest_count %}
+        <div style="background: #1a1a2e; border-radius: 6px; height: 6px; margin-top: 12px; overflow: hidden;">
+            <div style="background: linear-gradient(90deg, var(--primary), #00b4d8); height: 100%; width: {% widthratio pct product.interest_threshold 100 %}%; border-radius: 6px; transition: width 0.5s;"></div>
+        </div>
+        {% endwith %}
+
+        {% if user.is_authenticated %}
+            {% if user != product.seller %}
+                {% if product.status == 'FIXED' or product.status == 'UNLOCKED' %}
+                    <button id="ajax-interest-btn"
+                            class="btn {% if user in product.interested_users.all %}btn-accent{% else %}btn-primary{% endif %}"
+                            data-url="{% url 'app1:toggle_interest' product.id %}"
+                            style="width: 100%; margin-top: 14px;">
+                        {% if user in product.interested_users.all %}Remove Interest{% else %}I'm Interested{% endif %}
+                    </button>
+                {% endif %}
+            {% else %}
+                <p style="color: var(--text-dim); font-style: italic; margin-top: 12px; font-size: 0.88em;">Seller tracking view.</p>
+            {% endif %}
+        {% else %}
+            <p style="margin-top: 12px;"><a href="{% url 'app1:login' %}" style="color: var(--primary); font-weight: 600;">Login</a> to show interest.</p>
+        {% endif %}
+    </div>
+
+    <!-- 3. Seller Control (CHOICE LOGIC) -->
+    {% if user == product.seller and product.status == 'UNLOCKED' %}
+        <div class="neon-section" style="border-color: var(--warning); text-align: center;">
+            <strong style="color: var(--warning); font-size: 1.15em; display: block; margin-bottom: 16px;">🔥 Pulse Threshold Met!</strong>
+
+            <div class="choice-grid">
+                <div class="choice-card" style="border-color: var(--warning);">
+                    <h4 style="color: var(--warning);">Start Bidding War</h4>
+                    <p>Price drops by 5% to attract bidders.</p>
+                    <form action="{% url 'app1:start_warmup' product.id %}" method="post">
+                        {% csrf_token %}
+                        {% if user.profile.is_vip %}
+                            <p style="color: var(--gold); font-size: 0.78em; margin-bottom: 8px;">★ VIP Scheduling</p>
+                            <input type="datetime-local" name="start_time">
+                        {% endif %}
+                        <button type="submit" class="btn btn-warning" style="width: 100%;">Start Auction at ₹{{ product.get_starting_bid }}</button>
+                    </form>
+                </div>
+
+                <div class="choice-card" style="border-color: #3498db;">
+                    <h4 style="color: #3498db;">Sell Normally</h4>
+                    <p>Reset Pulse count and keep fixed price.</p>
+                    <form action="{% url 'app1:keep_fixed' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn" style="background: #3498db; width: 100%;">Keep at ₹{{ product.buy_now_price }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- 4. Auction Interface -->
+    {% if product.status == 'WARMUP' or product.status == 'AUCTION' %}
+        <div class="neon-section" style="border: 1px solid var(--accent);">
+
+            {% if user == product.seller and product.status == 'AUCTION' %}
+                <div style="text-align: right; margin-bottom: 10px;">
+                    <form action="{% url 'app1:force_end' product.id %}" method="post" onsubmit="return confirm('End auction now?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-ghost" style="color: var(--accent); border-color: var(--accent); font-size: 0.82em;">⚠ Force End</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <h2 style="margin-top: 0;">{% if product.status == 'WARMUP' %}Warming Up...{% else %}Auction Live{% endif %}</h2>
+            <div class="price-box">Current Bid: ₹<span id="current-bid">{{ product.current_bid }}</span></div>
+            <div class="timer-box">Time Left: <span id="timer">...</span></div>
+
+            {% if product.status == 'AUCTION' and user.is_authenticated and user != product.seller %}
+                <div class="bid-group">
+                    <input type="number" id="bid-amount" placeholder="Enter your bid amount" step="1" min="1">
+                    <button class="btn btn-accent" id="place-bid-btn">Place Bid</button>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- 5. Winner Section -->
+    {% if product.status == 'SOLD' %}
+        {% with winner=product.get_winner %}
+            {% if user == winner %}
+                <div class="winner-section">
+                    <h2>🎉 YOU WON! 🎉</h2>
+                    <p style="font-size: 1.15em; margin: 12px 0;">Winning Bid: <strong>₹{{ product.current_bid }}</strong></p>
+                    {% if product.seller.profile.payment_link %}
+                        <a href="{{ product.seller.profile.payment_link }}" target="_blank" class="btn btn-success" style="margin-top: 12px;">Pay via Razorpay</a>
+                    {% else %}
+                        <button class="btn btn-ghost" disabled style="cursor: not-allowed;">No Payment Link Set</button>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="sold-section neon-section">
+                    <h2 style="color: var(--text-dim);">SOLD</h2>
+                    <p>Final Price: ₹{{ product.current_bid|default:product.buy_now_price }}</p>
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+
+    <!-- 6. Bid History -->
+    {% if bid_history %}
+    <div class="neon-section">
+        <h3>📊 Bid History</h3>
+        {% for bid in bid_history %}
+            <div class="bid-history-item">
+                <span class="bid-user">{{ bid.user.username }}</span>
+                <span class="bid-amount">₹{{ bid.amount }}</span>
+                <span class="bid-time">{{ bid.timestamp|date:"M d, H:i" }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<div id="payment-overlay">
+    <div class="spinner"></div>
+    <h3 style="color:#fff; margin-top:20px;">Processing Payment...</h3>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const productId = "{{ product.id }}";
+    const csrftoken = '{{ csrf_token }}';
+
+    function processPayment() {
+        if (confirm("Confirm purchase?")) {
+            document.getElementById('payment-overlay').style.display = 'flex';
+            setTimeout(() => { document.getElementById('buy-form').submit(); }, 2000);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Interest Toggle (FIX: Now uses POST with CSRF) ---
+        const interestBtn = document.getElementById('ajax-interest-btn');
+        const pulseCount = document.getElementById('pulse-count');
+        if (interestBtn) {
+            interestBtn.addEventListener('click', function() {
+                const formData = new FormData();
+                fetch(this.getAttribute('data-url'), {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    body: formData
+                })
+                .then(res => {
+                    if (res.redirected) { window.location.href = res.url; return; }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    if (data.status === 'success') {
+                        pulseCount.innerText = data.count;
+                        if (data.added) {
+                            interestBtn.innerText = "Remove Interest";
+                            interestBtn.classList.remove('btn-primary');
+                            interestBtn.classList.add('btn-accent');
+                            showToast('Interest registered!', 'success');
+                        } else {
+                            interestBtn.innerText = "I'm Interested";
+                            interestBtn.classList.remove('btn-accent');
+                            interestBtn.classList.add('btn-primary');
+                            showToast('Interest removed.', 'info');
+                        }
+                        if (data.unlocked) {
+                            showToast('🔓 Auction Unlocked!', 'success');
+                            setTimeout(() => location.reload(), 1500);
+                        }
+                    } else {
+                        showToast(data.message || 'Error', 'error');
+                    }
+                });
+            });
+        }
+
+        // --- Bid Placement (FIX: Single handler, no double-bind) ---
+        const bidBtn = document.getElementById('place-bid-btn');
+        const bidInput = document.getElementById('bid-amount');
+        const priceBox = document.querySelector('.price-box');
+        if (bidBtn && bidInput) {
+            bidBtn.addEventListener('click', function() {
+                const amount = bidInput.value;
+                if (!amount) { showToast('Enter a bid amount', 'error'); return; }
+
+                const formData = new FormData();
+                formData.append('amount', amount);
+                fetch("{% url 'app1:place_bid' product.id %}", {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    body: formData
+                })
+                .then(res => {
+                    if (res.redirected) { window.location.href = res.url; return; }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    if (data.status === 'success') {
+                        document.getElementById('current-bid').innerText = data.new_price;
+                        bidInput.value = '';
+                        priceBox.style.backgroundColor = 'rgba(0, 255, 157, 0.1)';
+                        setTimeout(() => priceBox.style.backgroundColor = 'transparent', 600);
+                        showToast('Bid placed successfully!', 'success');
+                        if (data.extended) showToast('⏰ Soft Close! Time extended by 60s.', 'info');
+                    } else {
+                        showToast(data.message || 'Bid failed', 'error');
+                    }
+                });
+            });
+        }
+    });
+
+    // --- Countdown Timer ---
+    {% if product.auction_end_time %}
+    const endTime = new Date("{{ product.auction_end_time|date:'c' }}").getTime();
+    if (endTime) {
+        const timerEl = document.getElementById("timer");
+        setInterval(() => {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+            if (distance < 0) {
+                timerEl.innerHTML = "ENDED";
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                const h = Math.floor(distance / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                const pad = n => n < 10 ? '0' + n : n;
+                timerEl.innerHTML = `${h}h ${pad(m)}m ${pad(s)}s`;
+            }
+        }, 1000);
+    }
+    {% endif %}
+</script>
+{% endblock %}

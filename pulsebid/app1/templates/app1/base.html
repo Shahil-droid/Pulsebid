@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pulse Bid Marketplace{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== DESIGN SYSTEM ===== */
+        :root {
+            --bg-color: #0a0a0f;
+            --bg-secondary: #12121a;
+            --card-bg: #16161f;
+            --card-bg-hover: #1c1c28;
+            --text-main: #f0f0f5;
+            --text-muted: #8888a0;
+            --text-dim: #55556a;
+            --primary: #00e5dd;
+            --primary-glow: rgba(0, 229, 221, 0.15);
+            --primary-hover: #00c4bd;
+            --accent: #ff2d6a;
+            --accent-glow: rgba(255, 45, 106, 0.15);
+            --gold: #ffc857;
+            --gold-glow: rgba(255, 200, 87, 0.15);
+            --success: #00ff9d;
+            --success-glow: rgba(0, 255, 157, 0.15);
+            --warning: #ff9f43;
+            --purple: #a855f7;
+            --border: #2a2a3a;
+            --border-hover: #3a3a50;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --radius-pill: 50px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; transition: all 0.25s ease; }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+        }
+        .navbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+        .logo {
+            font-size: 1.3em;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-dot {
+            width: 8px; height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: logo-pulse 2s ease-in-out infinite;
+        }
+        @keyframes logo-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 var(--primary-glow); }
+            50% { box-shadow: 0 0 0 6px transparent; }
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 6px; }
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.85em;
+            padding: 7px 14px;
+            border-radius: var(--radius-pill);
+            color: var(--text-muted);
+            transition: all 0.25s;
+            position: relative;
+        }
+        .nav-link:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+
+        .nav-link-live { color: var(--accent) !important; }
+        .nav-link-live::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            animation: blink-live 1.5s infinite;
+        }
+        @keyframes blink-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .nav-link-drops { color: var(--gold) !important; }
+        .nav-link-inbox { color: var(--purple) !important; position: relative; }
+        .inbox-badge {
+            position: absolute;
+            top: 2px; right: 4px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.6em;
+            font-weight: 700;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .btn-sell {
+            background: linear-gradient(135deg, var(--primary), #00b4d8);
+            color: #000 !important;
+            padding: 8px 18px;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.85em;
+            box-shadow: 0 2px 12px var(--primary-glow);
+            transition: all 0.3s;
+        }
+        .btn-sell:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--primary-glow); }
+
+        .nav-user {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85em;
+            padding: 7px 12px;
+            border-radius: var(--radius-pill);
+        }
+        .nav-user:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+
+        .btn-logout {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8em;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            transition: all 0.25s;
+        }
+        .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ===== MAIN CONTAINER ===== */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 24px 60px;
+        }
+
+        /* ===== TOAST SYSTEM ===== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9em;
+            font-weight: 500;
+            min-width: 260px;
+            max-width: 380px;
+            animation: toast-in 0.4s ease, toast-out 0.4s ease 3.6s forwards;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast-success { background: #0d3320; border: 1px solid #196b3e; color: var(--success); }
+        .toast-error { background: #3b1013; border: 1px solid #6b1920; color: #ff6b6b; }
+        .toast-info { background: #0d2533; border: 1px solid #19456b; color: var(--primary); }
+
+        @keyframes toast-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toast-out { from { opacity: 1; } to { opacity: 0; transform: translateX(40px); } }
+
+        /* ===== UTILITY CLASSES ===== */
+        .section-title {
+            color: var(--primary);
+            font-size: 1.1em;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 20px;
+            padding-left: 14px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .btn {
+            padding: 10px 22px;
+            cursor: pointer;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-size: 0.9em;
+            font-weight: 700;
+            font-family: inherit;
+            transition: all 0.3s;
+            color: #000;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: var(--primary); box-shadow: 0 2px 12px var(--primary-glow); }
+        .btn-primary:hover { box-shadow: 0 4px 20px var(--primary-glow); }
+        .btn-accent { background: var(--accent); color: #fff; box-shadow: 0 2px 12px var(--accent-glow); }
+        .btn-accent:hover { box-shadow: 0 4px 20px var(--accent-glow); }
+        .btn-gold { background: var(--gold); color: #000; box-shadow: 0 2px 12px var(--gold-glow); }
+        .btn-success { background: var(--success); color: #000; box-shadow: 0 2px 12px var(--success-glow); }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-ghost:hover { border-color: var(--text-muted); color: var(--text-main); }
+        .btn-danger { background: #dc2626; color: #fff; }
+        .btn-warning { background: var(--warning); color: #000; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar-inner { gap: 10px; }
+            .nav-links { gap: 3px; flex-wrap: wrap; justify-content: flex-end; }
+            .nav-link { padding: 5px 8px; font-size: 0.8em; }
+            .btn-sell { padding: 6px 12px; font-size: 0.8em; }
+            .main-content { padding: 20px 16px 40px; }
+        }
+
+        {% block extra_styles %}{% endblock %}
+    </style>
+</head>
+<body>
+
+    {% block navbar %}
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="{% url 'app1:index' %}" class="logo">
+                <span class="logo-dot"></span> PULSEBID
+            </a>
+
+            <div class="nav-links">
+                <a href="{% url 'app1:live_auctions' %}" class="nav-link nav-link-live">Live</a>
+                <a href="{% url 'app1:vip_drops' %}" class="nav-link nav-link-drops">★ Drops</a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'app1:inbox' %}" class="nav-link nav-link-inbox">
+                        Inbox
+                        {% if unread_msg_count > 0 %}
+                            <span class="inbox-badge">{{ unread_msg_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'app1:create_product' %}" class="btn-sell">+ Sell</a>
+                    <a href="{% url 'app1:view_profile' user.username %}" class="nav-user">{{ user.username }}</a>
+                    <form action="{% url 'app1:logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-logout">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'app1:login' %}" class="nav-link">Login</a>
+                    <a href="{% url 'app1:signup' %}" class="btn-sell">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // --- Toast System ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const icons = { success: '✓', error: '✕', info: 'ℹ' };
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<span style="font-size:1.1em">${icons[type] || 'ℹ'}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // Replace alert() globally
+        window._originalAlert = window.alert;
+        window.alert = function(msg) {
+            if (msg && typeof msg === 'string') {
+                if (msg.toLowerCase().includes('error') || msg.toLowerCase().includes('fail') || msg.toLowerCase().includes('low'))
+                    showToast(msg, 'error');
+                else if (msg.toLowerCase().includes('success') || msg.toLowerCase().includes('sent'))
+                    showToast(msg, 'success');
+                else
+                    showToast(msg, 'info');
+            }
+        };
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

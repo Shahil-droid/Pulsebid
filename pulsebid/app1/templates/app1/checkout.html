@@ -1,0 +1,138 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Checkout | Pulse Bid{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .main-content { display: flex; justify-content: center; align-items: center; padding: 20px; width: 100%; }
+
+    .checkout-container { text-align: center; }
+    .checkout-container h2 { color: var(--primary); margin-bottom: 12px; font-size: 1.4em; }
+    .checkout-container p { color: var(--text-muted); margin-bottom: 28px; font-size: 1em; }
+
+    .btn-open {
+        padding: 14px 36px;
+        background: linear-gradient(135deg, var(--primary), #00b4d8);
+        color: #000;
+        border: none;
+        border-radius: var(--radius-pill);
+        font-size: 1.1em;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        box-shadow: 0 4px 20px var(--primary-glow);
+        transition: all 0.3s;
+    }
+    .btn-open:hover { transform: scale(1.05); box-shadow: 0 6px 28px var(--primary-glow); }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(8px);
+        z-index: 99;
+    }
+
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 380px;
+        max-width: 90vw;
+        background: var(--card-bg);
+        padding: 36px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        z-index: 100;
+        text-align: center;
+    }
+
+    .gateway-logo { color: #3399cc; font-weight: 700; font-size: 1.1em; margin-bottom: 20px; display: block; }
+    .amount { font-size: 2.2em; font-weight: 800; color: var(--text-main); margin: 12px 0; }
+    .seller-info { color: var(--text-dim); font-size: 0.88em; margin-bottom: 28px; }
+
+    .btn-pay {
+        width: 100%;
+        padding: 13px;
+        background: #3399cc;
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-size: 1em;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        margin-bottom: 12px;
+        transition: all 0.3s;
+    }
+    .btn-pay:hover { background: #2d8bb8; }
+    .btn-pay:disabled { background: #333; color: var(--text-dim); cursor: not-allowed; }
+
+    .btn-cancel-pay {
+        background: none;
+        border: none;
+        color: var(--accent);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9em;
+        font-family: inherit;
+    }
+    .btn-cancel-pay:hover { text-decoration: underline; }
+
+    .cancel-link { color: var(--text-dim); font-size: 0.88em; margin-top: 20px; display: inline-block; }
+    .cancel-link:hover { color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="checkout-container">
+        <h2>Complete Your Purchase</h2>
+        <p>You are buying: <strong>{{ product.title }}</strong></p>
+        <button class="btn-open" onclick="openGateway()">Proceed to Payment</button>
+        <br>
+        <a href="{% url 'app1:product_detail' product.id %}" class="cancel-link">← Cancel</a>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="popup" id="popup">
+        <span class="gateway-logo">🔒 Razorpay Trusted</span>
+        <p style="margin:0; color:var(--text-dim); font-size:0.88em;">Total Payable</p>
+        <div class="amount">₹{{ product.buy_now_price }}</div>
+        <div class="seller-info">
+            Paying to: <strong>{{ product.seller.username }}</strong>
+        </div>
+
+        <form id="payment-form" action="{% url 'app1:payment_success' product.id %}" method="post">
+            {% csrf_token %}
+            <button type="button" class="btn-pay" onclick="simulatePayment()">Pay Now</button>
+        </form>
+        <button onclick="closeGateway()" class="btn-cancel-pay">Cancel Transaction</button>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function openGateway() {
+        document.getElementById("overlay").style.display = "block";
+        document.getElementById("popup").style.display = "block";
+    }
+    function closeGateway() {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("popup").style.display = "none";
+    }
+    function simulatePayment() {
+        const btn = document.querySelector('.btn-pay');
+        btn.innerHTML = "Processing...";
+        btn.disabled = true;
+        setTimeout(() => {
+            document.getElementById('payment-form').submit();
+        }, 2000);
+    }
+</script>
+{% endblock %}

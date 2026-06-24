@@ -1,0 +1,75 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Inbox | Pulse Bid{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .inbox-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .inbox-header h1 {
+        font-size: 1.4em;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .msg-list {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .msg-card {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    .msg-card:last-child { border-bottom: none; }
+    .msg-card:hover { background: var(--card-bg-hover); }
+
+    .unread {
+        border-left: 3px solid var(--primary);
+        background: rgba(0, 229, 221, 0.03);
+    }
+
+    a { text-decoration: none; color: inherit; }
+    .msg-user { font-weight: 700; color: var(--text-main); }
+    .msg-product { color: var(--primary); font-size: 0.88em; font-weight: 600; margin-left: 8px; }
+    .msg-preview { color: var(--text-dim); font-size: 0.85em; margin-top: 4px; display: block; }
+    .msg-time { color: var(--text-dim); font-size: 0.78em; white-space: nowrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="inbox-header">
+        <h1>📨 Inbox</h1>
+        <a href="{% url 'app1:index' %}" class="btn btn-ghost" style="font-size: 0.85em;">← Home</a>
+    </div>
+
+    <div class="msg-list">
+        {% for conv in conversations %}
+        <a href="{% url 'app1:chat_detail' conv.product.id conv.other_user.id %}">
+            <div class="msg-card {% if not conv.last_message.is_read and conv.last_message.recipient == user %}unread{% endif %}">
+                <div>
+                    <span class="msg-user">{{ conv.other_user.username }}</span>
+                    <span class="msg-product">re: {{ conv.product.title }}</span>
+                    <span class="msg-preview">{{ conv.last_message.body|truncatechars:70 }}</span>
+                </div>
+                <div class="msg-time">{{ conv.last_message.timestamp|date:"M d" }}</div>
+            </div>
+        </a>
+        {% empty %}
+            <div style="padding: 48px; text-align: center; color: var(--text-dim);">
+                <p style="font-size: 1.5em; margin-bottom: 8px;">📭</p>
+                <p>No messages yet. Start a conversation by enquiring about a product!</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
